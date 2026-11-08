@@ -12,12 +12,9 @@ const occasions = [
   { icon: "⛪", title: "Igrejas e eventos", text: "Para encontros e celebrações natalinas." },
   { icon: "✨", title: "Para produzir e vender", text: "Ideias criativas para oferecer por encomenda." },
 ];
-function formatRemaining(time: Date) {
-  const now = time.getTime();
-  const end = new Date(time);
-  end.setHours(23,59,59,999);
-  const seconds = Math.max(0,Math.floor((end.getTime()-now)/1000));
-  return [Math.floor(seconds/3600),Math.floor(seconds%3600/60),seconds%60].map(n=>String(n).padStart(2,"0")).join(":");
+function formatRemaining(secondsRemaining: number) {
+  const seconds = Math.max(0,Math.floor(secondsRemaining));
+  return [Math.floor(seconds/60),seconds%60].map(n=>String(n).padStart(2,"0")).join(":");
 }
 function Button({children, onClick, outline=false, className=""}:{children:React.ReactNode;onClick:()=>void;outline?:boolean;className?:string}) {
  return <button type="button" onClick={onClick} className={`inline-flex min-h-13 items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-bold tracking-wide transition duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2c5943] ${outline?"border border-[#315740] text-[#315740] hover:bg-[#f1f5ee]":"bg-[#28533d] text-white shadow-[0_7px_18px_rgba(40,83,61,.18)] hover:bg-[#1d4330]"} ${className}`}>{children}<ArrowRight size={17}/></button>;
@@ -68,16 +65,29 @@ function CarouselStrip({prefix,direction,label}:{prefix:"c"|"m";direction:"forwa
 }
 function Home() {
  const [now,setNow]=useState<Date | null>(null);
+ const [countdown,setCountdown]=useState(900);
  const [reviewText,setReviewText]=useState("");
  const [reviewName,setReviewName]=useState("");
  const [reviewStars,setReviewStars]=useState(5);
  const [localReview,setLocalReview]=useState<{name:string;text:string;stars:number}|null>(null);
- useEffect(()=>{setNow(new Date());const t=window.setInterval(()=>setNow(new Date()),1000);return()=>window.clearInterval(t)},[]);
+ useEffect(()=>{
+  const key="natal-15min-inicio";
+  let start=Date.now();
+  try {
+   const saved=window.sessionStorage.getItem(key);
+   if(saved && Number.isFinite(Number(saved))) start=Number(saved);
+   else window.sessionStorage.setItem(key,String(start));
+  } catch { /* o contador funciona mesmo sem sessionStorage */ }
+  const tick=()=>{setNow(new Date());setCountdown(Math.max(0,900-Math.floor((Date.now()-start)/1000)));};
+  tick();
+  const t=window.setInterval(tick,1000);
+  return()=>window.clearInterval(t);
+ },[]);
  function goTo(id:string){document.getElementById(id)?.scrollIntoView({behavior:"smooth",block:"start"});}
  function submitReview(e:React.FormEvent){e.preventDefault();const name=reviewName.trim();const text=reviewText.trim();if(!name || !text)return;setLocalReview({name:name.slice(0,55),text:text.slice(0,500),stars:reviewStars});setReviewText("");setReviewName("");}
  const date=now?.toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"});
  return <main className="min-h-screen bg-[#fcfbf8] text-[#2e382f] selection:bg-[#e6eddf]" style={{fontFamily:'"Inter", ui-sans-serif, system-ui, sans-serif'}}>
-  <div className="bg-[#a52e35] text-white"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2.5 text-center text-xs font-semibold sm:text-sm"><span>🎄 Especial de Natal <span className="hidden sm:inline">· {date ?? "Hoje"}</span></span><span className="opacity-50">|</span><span>Contagem até o fim do dia:</span><span className="rounded-md bg-white/20 px-2 py-1 font-mono text-sm tabular-nums">{now?formatRemaining(now):"--:--:--"}</span></div></div>
+  <div className="bg-[#a52e35] text-white"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2.5 text-center text-xs font-semibold sm:text-sm"><span>🎄 Especial de Natal <span className="hidden sm:inline">· {date ?? "Hoje"}</span></span><span className="opacity-50">|</span><span>Contador de 15 minutos:</span><span className="rounded-md bg-white/20 px-2 py-1 font-mono text-sm tabular-nums">{now?formatRemaining(countdown):"15:00"}</span></div></div>
   
   <section id="inicio" className="relative overflow-hidden"><div className="pointer-events-none absolute -right-28 top-0 h-100 w-100 rounded-full bg-[#f0efe4] blur-3xl"/><div className="relative mx-auto flex max-w-4xl flex-col items-center px-4 pb-12 pt-9 text-center sm:px-6 sm:pt-14 md:pb-18"><Tag><Sparkles size={13}/> Coleção especial de Natal</Tag><h1 className="max-w-3xl text-[clamp(2.05rem,6vw,4.25rem)] font-extrabold leading-[1.1] tracking-[-.045em] text-[#2c4636]">Pequenos presentes. <span className="text-[#b45b4e]">Grandes lembranças.</span></h1><img src="/images/modelos/mk.webp" alt="Mockup da coleção de 50 Mini Lembranças de Natal" fetchPriority="high" width={900} height={900} className="relative my-5 block h-auto w-full max-w-[640px] object-contain sm:my-7" /><p className="mx-auto max-w-2xl text-base leading-relaxed text-[#626c62] sm:text-lg">Transforme pequenos gestos em lindas lembrancinhas de Natal! São <strong className="text-[#2c4636]">50 modelos prontos para imprimir</strong> e montar, perfeitos para presentear, agradecer, surpreender ou até produzir para vender.</p><div className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-[#4e5d51] sm:text-sm">{["Formato A4","Fácil de montar","Acesso digital"].map(t=><span key={t} className="inline-flex items-center gap-1.5"><Check size={17} className="text-[#2b7950]"/>{t}</span>)}</div><div className="mt-8 w-full sm:w-auto"><Button onClick={()=>goTo("precos")} className="w-full sm:min-w-[310px]">QUERO MINHAS LEMBRANCINHAS</Button><p className="mt-3 text-xs text-[#7e887d]">Acesso imediato após a confirmação da compra</p></div></div></section>
   <section id="como-funciona" className="scroll-mt-22 border-y border-[#eeece5] bg-white py-20"><div className="mx-auto max-w-6xl px-5 text-center"><Tag>Simples e especial</Tag><h2 className="mx-auto max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-[#2c4636] md:text-4xl">Um mimo simples pode se transformar em uma lembrança inesquecível.</h2><img src="/images/modelos/geral.webp" alt="Visão geral das mini lembrancinhas natalinas da coleção" loading="lazy" className="mx-auto mt-9 block h-auto w-full max-w-4xl rounded-2xl object-contain" /><h3 className="mt-12 text-xl font-bold text-[#2c4636]">Uma coleção, muitas ocasiões 🎄</h3><div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{occasions.map(x=><div key={x.title} className="flex items-center gap-4 rounded-xl border border-[#eeece5] p-4 text-left"><span className="text-3xl">{x.icon}</span><div><h4 className="font-bold text-[#34493b]">{x.title}</h4><p className="mt-1 text-xs leading-relaxed text-[#747e75]">{x.text}</p></div></div>)}</div></div></section>
