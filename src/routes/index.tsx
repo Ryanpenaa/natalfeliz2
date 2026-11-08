@@ -65,7 +65,7 @@ function CarouselStrip({prefix,direction,label}:{prefix:"c"|"m";direction:"forwa
  },[direction,images.length]);
  return <div className="w-full">
   <p className="mb-3 px-5 text-center text-sm font-bold tracking-wide text-[#47634d]">{label}</p>
-  <div ref={viewport} aria-label={label} className="flex gap-3 overflow-x-hidden px-0" style={{scrollbarWidth:"none"}}>
+  <div ref={viewport} aria-label={label} className="relative flex gap-3 overflow-x-hidden px-0" style={{scrollbarWidth:"none"}}>
    {[...images,...images,...images].map((src,i)=><div key={prefix+"-"+i} className="w-[44%] shrink-0 overflow-hidden rounded-2xl border border-[#e5e7df] bg-white shadow-sm">
     <img src={src} alt={`Modelo de lembrancinha de Natal ${i%images.length+1}`} loading={i>=images.length&&i<images.length*2?"eager":"lazy"} draggable={false} className="aspect-[4/5] w-full object-contain" />
    </div>)}
