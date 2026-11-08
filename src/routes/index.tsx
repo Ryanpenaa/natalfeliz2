@@ -29,51 +29,48 @@ function Button({children, onClick, outline=false, className=""}:{children:React
  return <button type="button" onClick={onClick} className={`inline-flex min-h-13 items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-bold tracking-wide transition duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2c5943] ${outline?"border border-[#315740] text-[#315740] hover:bg-[#f1f5ee]":"bg-[#28533d] text-white shadow-[0_7px_18px_rgba(40,83,61,.18)] hover:bg-[#1d4330]"} ${className}`}>{children}<ArrowRight size={17}/></button>;
 }
 function Tag({children}:{children:React.ReactNode}) {return <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#edf1e9] px-4 py-2 text-xs font-bold tracking-[.15em] uppercase text-[#3b614b]">{children}</span>}
+const carouselImages = {
+ c: [1,2,3,4,5,6,7,8].map(i=>`/images/modelos/c${i}.webp`),
+ m: [1,2,3,4,5,6,7,8,9].map(i=>`/images/modelos/m${i}.webp`),
+};
+
 function CarouselStrip({prefix,direction,label}:{prefix:"c"|"m";direction:"forward"|"backward";label:string}) {
- const [images,setImages]=useState<string[]>([]);
- const [checking,setChecking]=useState(true);
+ const images=carouselImages[prefix];
  const viewport=useRef<HTMLDivElement>(null);
- const position=useRef(0);
- const timer=useRef<ReturnType<typeof setInterval>|null>(null);
+ const position=useRef(images.length);
  useEffect(()=>{
-  let cancelled=false;
-  const test=(src:string)=>new Promise<boolean>(resolve=>{const img=new Image();img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.src=src;});
-  (async()=>{
-   const found:string[]=[];
-   // Arquivos consecutivos: c1.webp, c2.webp… / m1.webp, m2.webp…
-   for(let i=1;i<=60;i++){
-    const src=`/images/modelos/${prefix}${i}.webp`;
-    if(!(await test(src)))break;
-    found.push(src);
-   }
-   if(!cancelled){setImages(found);setChecking(false);}
-  })();
-  return()=>{cancelled=true;};
- },[prefix]);
- useEffect(()=>{
-  if(images.length<2)return;
-  const n=images.length;
-  position.current=n;
-  const scrollToPosition=(i:number,behavior:ScrollBehavior)=>{
-   const node=viewport.current;
-   const card=node?.children[i] as HTMLElement|undefined;
-   if(!node||!card)return;
-   node.scrollTo({left:card.offsetLeft + card.offsetWidth/2 - node.clientWidth/2,behavior});
+  const node=viewport.current;
+  if(!node || images.length<2) return;
+  const count=images.length;
+  let timeout:number|undefined;
+  const scrollToItem=(index:number,behavior:ScrollBehavior)=>{
+   const el=node.children.item(index) as HTMLElement|null;
+   if(!el)return;
+   node.scrollTo({left:el.offsetLeft+el.offsetWidth/2-node.clientWidth/2,behavior});
   };
-  const init=window.requestAnimationFrame(()=>scrollToPosition(n,"instant"));
-  timer.current=setInterval(()=>{
-   position.current+=direction==="forward"?1:-1;
-   const current=position.current;
-   scrollToPosition(current,"smooth");
-   window.setTimeout(()=>{
-    if(!viewport.current)return;
-    if(current>=2*n){position.current=n;scrollToPosition(n,"instant");}
-    else if(current<n){position.current=2*n-1;scrollToPosition(2*n-1,"instant");}
-   },800);
+  const start=window.requestAnimationFrame(()=>{
+   position.current=count;
+   scrollToItem(count,"auto");
+  });
+  const interval=window.setInterval(()=>{
+   const next=position.current+(direction==="forward"?1:-1);
+   position.current=next;
+   scrollToItem(next,"smooth");
+   timeout=window.setTimeout(()=>{
+    if(next>=2*count){position.current=count;scrollToItem(count,"auto");}
+    else if(next<count){position.current=2*count-1;scrollToItem(2*count-1,"auto");}
+   },750);
   },2000);
-  return()=>{window.cancelAnimationFrame(init);if(timer.current)clearInterval(timer.current);};
- },[images,direction]);
- return <div><p className="mb-3 px-5 text-center text-sm font-bold tracking-wide text-[#47634d]">{label}</p>{images.length===0?<div className="mx-auto flex min-h-40 max-w-3xl items-center justify-center rounded-2xl border border-dashed border-[#dce2d6] bg-white/70 px-6 text-center text-sm text-[#879185]">{checking?"Carregando imagens...":`Aguardando imagens ${prefix}1.webp, ${prefix}2.webp… na pasta public/images/modelos/`}</div>:<div ref={viewport} aria-label={label} className="flex gap-3 overflow-hidden px-0" style={{scrollbarWidth:"none"}}>{[...images,...images,...images].map((src,i)=><div key={prefix+"-"+i} className="w-[44%] shrink-0 overflow-hidden rounded-2xl border border-[#e5e7df] bg-white shadow-sm"><img src={src} alt={`Modelo de lembrancinha de Natal ${i%images.length+1}`} loading={i>=images.length&&i<images.length*2?"eager":"lazy"} draggable={false} className="aspect-[4/5] w-full object-cover" /></div>)}</div>}</div>;
+  return()=>{window.cancelAnimationFrame(start);window.clearInterval(interval);if(timeout!==undefined)window.clearTimeout(timeout);};
+ },[direction,images.length]);
+ return <div className="w-full">
+  <p className="mb-3 px-5 text-center text-sm font-bold tracking-wide text-[#47634d]">{label}</p>
+  <div ref={viewport} aria-label={label} className="flex gap-3 overflow-x-hidden px-0" style={{scrollbarWidth:"none"}}>
+   {[...images,...images,...images].map((src,i)=><div key={prefix+"-"+i} className="w-[44%] shrink-0 overflow-hidden rounded-2xl border border-[#e5e7df] bg-white shadow-sm">
+    <img src={src} alt={`Modelo de lembrancinha de Natal ${i%images.length+1}`} loading={i>=images.length&&i<images.length*2?"eager":"lazy"} draggable={false} className="aspect-[4/5] w-full object-contain" />
+   </div>)}
+  </div>
+ </div>;
 }
 function Home() {
  const [now,setNow]=useState<Date | null>(null);
