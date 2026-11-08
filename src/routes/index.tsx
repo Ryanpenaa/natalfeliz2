@@ -1,17 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Check, ChevronLeft, ChevronRight, Clock3, Gift, Heart, LockKeyhole, Menu, PackageCheck, Printer, Scissors, ShieldCheck, ShoppingBag, Sparkles, Star, X } from "lucide-react";
+import { ArrowRight, Check, Gift, Heart, LockKeyhole, Menu, PackageCheck, Printer, Scissors, ShieldCheck, Sparkles, Star, X } from "lucide-react";
 
 export const Route = createFileRoute("/")({ component: Home });
 
-const PRODUCTS = [
-  { name: "Mini caixinhas", use: "Para presentear com carinho", color: "#c66755", icon: "🎁" },
-  { name: "Mimos para escola", use: "Professores, turmas e alunos", color: "#88a69a", icon: "🎓" },
-  { name: "Lembranças para clientes", use: "Um agradecimento especial", color: "#d5aa74", icon: "🛍️" },
-  { name: "Mini sacolinhas", use: "Para doces e pequenos presentes", color: "#8fadb1", icon: "🛍️" },
-  { name: "Cartões e mensagens", use: "Para emocionar quem recebe", color: "#b48b9b", icon: "💌" },
-  { name: "Surpresas para a família", use: "Para quem faz seu Natal especial", color: "#97a977", icon: "❤️" },
-];
 const occasions = [
   { icon: "🎓", title: "Escolas e professores", text: "Para alunos, colegas e equipes escolares." },
   { icon: "🛍️", title: "Comércios e clientes", text: "Um gesto especial de agradecimento." },
@@ -31,18 +23,61 @@ function Button({children, onClick, outline=false, className=""}:{children:React
  return <button type="button" onClick={onClick} className={`inline-flex min-h-13 items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-bold tracking-wide transition duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2c5943] ${outline?"border border-[#315740] text-[#315740] hover:bg-[#f1f5ee]":"bg-[#28533d] text-white shadow-[0_7px_18px_rgba(40,83,61,.18)] hover:bg-[#1d4330]"} ${className}`}>{children}<ArrowRight size={17}/></button>;
 }
 function Tag({children}:{children:React.ReactNode}) {return <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#edf1e9] px-4 py-2 text-xs font-bold tracking-[.15em] uppercase text-[#3b614b]">{children}</span>}
+function CarouselStrip({prefix,direction,label}:{prefix:"c"|"m";direction:"forward"|"backward";label:string}) {
+ const [images,setImages]=useState<string[]>([]);
+ const [checking,setChecking]=useState(true);
+ const viewport=useRef<HTMLDivElement>(null);
+ const position=useRef(0);
+ const timer=useRef<ReturnType<typeof setInterval>|null>(null);
+ useEffect(()=>{
+  let cancelled=false;
+  const test=(src:string)=>new Promise<boolean>(resolve=>{const img=new Image();img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.src=src;});
+  (async()=>{
+   const found:string[]=[];
+   // Arquivos consecutivos: c1.webp, c2.webp… / m1.webp, m2.webp…
+   for(let i=1;i<=60;i++){
+    const src=`/images/modelos/${prefix}${i}.webp`;
+    if(!(await test(src)))break;
+    found.push(src);
+   }
+   if(!cancelled){setImages(found);setChecking(false);}
+  })();
+  return()=>{cancelled=true;};
+ },[prefix]);
+ useEffect(()=>{
+  if(images.length<2)return;
+  const n=images.length;
+  position.current=n;
+  const scrollToPosition=(i:number,behavior:ScrollBehavior)=>{
+   const node=viewport.current;
+   const card=node?.children[i] as HTMLElement|undefined;
+   if(!node||!card)return;
+   node.scrollTo({left:card.offsetLeft + card.offsetWidth/2 - node.clientWidth/2,behavior});
+  };
+  const init=window.requestAnimationFrame(()=>scrollToPosition(n,"instant"));
+  timer.current=setInterval(()=>{
+   position.current+=direction==="forward"?1:-1;
+   const current=position.current;
+   scrollToPosition(current,"smooth");
+   window.setTimeout(()=>{
+    if(!viewport.current)return;
+    if(current>=2*n){position.current=n;scrollToPosition(n,"instant");}
+    else if(current<n){position.current=2*n-1;scrollToPosition(2*n-1,"instant");}
+   },800);
+  },2000);
+  return()=>{window.cancelAnimationFrame(init);if(timer.current)clearInterval(timer.current);};
+ },[images,direction]);
+ return <div><p className="mb-3 px-5 text-center text-sm font-bold tracking-wide text-[#47634d]">{label}</p>{images.length===0?<div className="mx-auto flex min-h-40 max-w-3xl items-center justify-center rounded-2xl border border-dashed border-[#dce2d6] bg-white/70 px-6 text-center text-sm text-[#879185]">{checking?"Carregando imagens...":`Aguardando imagens ${prefix}1.webp, ${prefix}2.webp… na pasta public/images/modelos/`}</div>:<div ref={viewport} aria-label={label} className="flex gap-3 overflow-hidden px-0" style={{scrollbarWidth:"none"}}>{[...images,...images,...images].map((src,i)=><div key={prefix+"-"+i} className="w-[44%] shrink-0 overflow-hidden rounded-2xl border border-[#e5e7df] bg-white shadow-sm"><img src={src} alt={`Modelo de lembrancinha de Natal ${i%images.length+1}`} loading={i>=images.length&&i<images.length*2?"eager":"lazy"} draggable={false} className="aspect-[4/5] w-full object-cover" /></div>)}</div>}</div>;
+}
 function Home() {
  const [now,setNow]=useState<Date | null>(null);
- const [index,setIndex]=useState(0);
  const [reviewText,setReviewText]=useState("");
  const [reviewName,setReviewName]=useState("");
  const [reviewStars,setReviewStars]=useState(5);
  const [localReview,setLocalReview]=useState<{name:string;text:string;stars:number}|null>(null);
  const [mobileMenu,setMobileMenu]=useState(false);
- const carousel=useRef<HTMLDivElement>(null);
  useEffect(()=>{setNow(new Date());const t=window.setInterval(()=>setNow(new Date()),1000);return()=>window.clearInterval(t)},[]);
  function goTo(id:string){document.getElementById(id)?.scrollIntoView({behavior:"smooth",block:"start"});setMobileMenu(false)}
- function slide(i:number){const next=(i+PRODUCTS.length)%PRODUCTS.length;setIndex(next);if(carousel.current){const child=carousel.current.children[next] as HTMLElement | undefined;child?.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});}}
  function submitReview(e:React.FormEvent){e.preventDefault();const name=reviewName.trim();const text=reviewText.trim();if(!name || !text)return;setLocalReview({name:name.slice(0,55),text:text.slice(0,500),stars:reviewStars});setReviewText("");setReviewName("");}
  const date=now?.toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"});
  return <main className="min-h-screen bg-[#fcfbf8] text-[#2e382f] selection:bg-[#e6eddf]" style={{fontFamily:'"Inter", ui-sans-serif, system-ui, sans-serif'}}>
@@ -50,7 +85,7 @@ function Home() {
   <header className="sticky top-0 z-30 border-b border-[#e9e9e1] bg-[#fcfbf8]/95 backdrop-blur-lg"><nav className="mx-auto flex h-18 max-w-6xl items-center justify-between px-5"><a href="#inicio" onClick={e=>{e.preventDefault();goTo("inicio")}} className="flex items-center gap-2 text-base font-extrabold tracking-tight text-[#254735]"><Gift size={24}/> Mini Lembranças <span className="text-[#ae6b53]">de Natal</span></a><div className="hidden items-center gap-8 text-sm font-medium text-[#677166] md:flex"><button onClick={()=>goTo("como-funciona")}>Como funciona</button><button onClick={()=>goTo("modelos")}>Modelos</button><button onClick={()=>goTo("precos")}>Planos</button></div><button onClick={()=>goTo("precos")} className="hidden rounded-lg bg-[#28533d] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#1d4330] md:block">Ver os planos</button><button aria-label="Abrir menu" onClick={()=>setMobileMenu(v=>!v)} className="rounded-lg p-2 md:hidden">{mobileMenu?<X/>:<Menu/>}</button></nav>{mobileMenu&&<div className="flex flex-col gap-4 border-t bg-[#fcfbf8] px-6 py-5 text-sm"><button onClick={()=>goTo("como-funciona")}>Como funciona</button><button onClick={()=>goTo("modelos")}>Ver modelos</button><button onClick={()=>goTo("precos")}>Ver planos</button></div>}</header>
   <section id="inicio" className="relative overflow-hidden"><div className="pointer-events-none absolute -right-28 top-0 h-100 w-100 rounded-full bg-[#f0efe4] blur-3xl"/><div className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-16 md:grid-cols-[1.04fr_.96fr] md:py-23"><div className="relative z-10"><Tag><Sparkles size={13}/> Coleção especial de Natal</Tag><h1 className="max-w-2xl text-[clamp(2.35rem,5.2vw,4.5rem)] font-extrabold leading-[1.08] tracking-[-.045em] text-[#2c4636]">Pequenos presentes. <span className="text-[#b45b4e]">Grandes lembranças.</span></h1><p className="mt-6 max-w-xl text-lg leading-relaxed text-[#626c62]">Transforme pequenos gestos em lindas lembrancinhas de Natal! São <strong className="text-[#2c4636]">50 modelos prontos para imprimir</strong> e montar, perfeitos para presentear, agradecer, surpreender ou até produzir para vender.</p><div className="mt-7 flex flex-wrap gap-3 text-sm text-[#4e5d51]">{["Formato A4","Fácil de montar","Acesso digital"].map(t=><span key={t} className="inline-flex items-center gap-1.5"><Check size={17} className="text-[#2b7950]"/>{t}</span>)}</div><div className="mt-9"><Button onClick={()=>goTo("precos")} className="w-full sm:w-auto">QUERO MINHAS LEMBRANCINHAS</Button><p className="mt-3 text-xs text-[#7e887d]">Acesso imediato após a confirmação da compra</p></div></div><div className="relative"><div className="relative mx-auto aspect-[1.04] max-w-lg rounded-[2rem] border border-[#e8e4d7] bg-[#f4f0e7] p-5 shadow-[0_25px_75px_rgba(67,75,52,.10)] sm:p-8"><div className="absolute left-5 top-5 z-10 rounded-full bg-white/95 px-4 py-2 text-xs font-extrabold tracking-wide text-[#46624a] shadow-sm">50 MODELOS • A4</div><div className="grid h-full grid-cols-2 gap-3 pt-10 sm:gap-5">{PRODUCTS.slice(0,4).map((p,i)=><div key={p.name} className="relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-white/60 p-4 shadow-[0_10px_22px_rgba(58,68,52,.12)]" style={{backgroundColor:p.color, transform:`rotate(${i%2?3:-3}deg)`}}><div className="absolute inset-x-0 top-0 h-3 bg-white/15"/><div className="mb-3 flex h-21 w-21 items-center justify-center rounded-xl border-[3px] border-dashed border-white/70 bg-white/20 text-5xl shadow-md sm:h-26 sm:w-26">{p.icon}</div><div className="text-center text-sm font-bold text-white drop-shadow-sm">{p.name}</div><div className="mt-1 text-center text-[10px] text-white/90">Coleção Natal</div></div>)}</div><div className="absolute -bottom-4 -right-2 rotate-5 rounded-xl bg-[#315740] px-5 py-3 text-center text-xs font-bold text-white shadow-xl sm:-right-4">Imprima • Recorte<br/>Monte • Encante</div></div><p className="mt-7 text-center text-xs text-[#899084]">Ilustração de apresentação · Fotos dos modelos serão adicionadas em breve</p></div></div></section>
   <section id="como-funciona" className="scroll-mt-22 border-y border-[#eeece5] bg-white py-20"><div className="mx-auto max-w-6xl px-5 text-center"><Tag>Simples e especial</Tag><h2 className="mx-auto max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-[#2c4636] md:text-4xl">Um mimo simples pode se transformar em uma lembrança inesquecível.</h2><p className="mx-auto mt-5 max-w-2xl leading-relaxed text-[#6d776e]">Com nossos moldes, você cria lembrancinhas encantadoras sem precisar dominar técnicas de artesanato. Escolha o modelo, imprima, recorte e monte.</p><div className="mt-11 grid gap-4 sm:grid-cols-3">{[{icon:<Printer size={27}/>,title:"1. Imprima",text:"Escolha o modelo e imprima em folha A4."},{icon:<Scissors size={27}/>,title:"2. Recorte e monte",text:"Siga as marcações de corte e dobra."},{icon:<Heart size={27}/>,title:"3. Surpreenda",text:"Complete com seu mimo e presenteie."}].map(x=><article key={x.title} className="rounded-2xl border border-[#ebece5] bg-[#fcfbf8] px-7 py-8"><div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#e8f0e7] text-[#325d44]">{x.icon}</div><h3 className="text-lg font-bold">{x.title}</h3><p className="mt-2 text-sm leading-relaxed text-[#727b70]">{x.text}</p></article>)}</div><h3 className="mt-15 text-xl font-bold text-[#2c4636]">Uma coleção, muitas ocasiões 🎄</h3><div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{occasions.map(x=><div key={x.title} className="flex items-center gap-4 rounded-xl border border-[#eeece5] p-4 text-left"><span className="text-3xl">{x.icon}</span><div><h4 className="font-bold text-[#34493b]">{x.title}</h4><p className="mt-1 text-xs leading-relaxed text-[#747e75]">{x.text}</p></div></div>)}</div></div></section>
-  <section id="modelos" className="scroll-mt-22 py-20"><div className="mx-auto max-w-6xl px-5"><div className="text-center"><Tag>Conheça a coleção</Tag><h2 className="text-3xl font-extrabold tracking-tight text-[#2c4636] md:text-4xl">50 ideias para encantar neste Natal</h2><p className="mx-auto mt-4 max-w-2xl text-[#6f796f]">De caixinhas e mini sacolinhas a cartões e lembranças para diferentes ocasiões. Veja algumas categorias que fazem parte da proposta da coleção.</p></div><div className="mt-10 flex items-center justify-between"><p className="text-sm text-[#7a8478]">Prévia ilustrativa · As fotos reais serão incluídas aqui</p><div className="flex gap-2"><button aria-label="Anterior" onClick={()=>slide(index-1)} className="rounded-full border border-[#d9ded5] bg-white p-3 hover:bg-[#f2f5f0]"><ChevronLeft size={20}/></button><button aria-label="Próximo" onClick={()=>slide(index+1)} className="rounded-full border border-[#d9ded5] bg-white p-3 hover:bg-[#f2f5f0]"><ChevronRight size={20}/></button></div></div><div ref={carousel} onScroll={e=>{const el=e.currentTarget;const width=(el.firstElementChild as HTMLElement)?.offsetWidth+16||1;setIndex(Math.max(0,Math.min(PRODUCTS.length-1,Math.round(el.scrollLeft/width))))}} className="mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{PRODUCTS.map(p=><article key={p.name} className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl border border-[#ecebe4] bg-white shadow-sm sm:w-[45%] lg:w-[31%]"><div className="flex aspect-[4/3] items-center justify-center" style={{backgroundColor:p.color+"24"}}><div className="flex aspect-square w-38 rotate-[-5deg] items-center justify-center rounded-2xl border-4 border-dashed border-white/80 text-7xl shadow-lg" style={{backgroundColor:p.color}}>{p.icon}</div></div><div className="p-5"><h3 className="text-lg font-extrabold text-[#314637]">{p.name}</h3><p className="mt-1 text-sm text-[#7e867c]">{p.use}</p></div></article>)}</div><div className="mt-4 flex justify-center gap-2">{PRODUCTS.map((p,i)=><button key={p.name} onClick={()=>slide(i)} aria-label={`Ver modelo ${i+1}`} className={`h-2 rounded-full transition-all ${i===index?"w-7 bg-[#3c674b]":"w-2 bg-[#ced6cc]"}`}/>)}</div><div className="mt-9 text-center"><Button onClick={()=>goTo("precos")}>QUERO ACESSAR OS 50 MODELOS</Button></div></div></section>
+  <section id="modelos" className="scroll-mt-22 overflow-hidden py-20"><div className="mx-auto max-w-6xl px-5 text-center"><Tag>Conheça a coleção</Tag><h2 className="text-3xl font-extrabold tracking-tight text-[#2c4636] md:text-4xl">50 ideias para encantar neste Natal</h2><p className="mx-auto mt-4 max-w-2xl text-[#6f796f]">Veja algumas das mini lembrancinhas e moldes da coleção. Dois carrosséis com nossos modelos, sempre em movimento.</p></div><div className="mx-auto mt-10 max-w-6xl space-y-8"><CarouselStrip prefix="c" direction="forward" label="Mini lembranças de Natal"/><CarouselStrip prefix="m" direction="backward" label="Mais modelos para se inspirar"/></div><div className="mt-10 text-center"><Button onClick={()=>goTo("precos")}>QUERO ACESSAR OS 50 MODELOS</Button></div></section>
   <section id="bonus" className="border-y border-[#eee9df] bg-white py-20"><div className="mx-auto max-w-6xl px-5 text-center"><Tag>Uma surpresa a mais</Tag><h2 className="text-3xl font-extrabold text-[#2c4636] md:text-4xl">Mais ideias para deixar seu Natal completo 🎁</h2><p className="mx-auto mt-4 max-w-xl text-[#6e796e]">O Plano Completo foi pensado para incluir quatro materiais complementares: artesanato natalino, caixinhas para colorir e dois painéis decorativos. Os bônus estão em preparação e serão disponibilizados quando finalizados.</p><div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{[
  {image:"/images/bonus/bonus1_artenasant.webp",title:"Artesanato Natalino",text:"Ideias criativas para montar e decorar.",value:"R$ 19,90"},
  {image:"/images/bonus/bonus2_caixinha.webp",title:"Caixinhas para Colorir",text:"Atividades natalinas para personalizar.",value:"R$ 14,90"},
