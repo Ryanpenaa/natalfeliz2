@@ -4,6 +4,12 @@ import { ArrowRight, Check, Gift, Heart, LockKeyhole, Menu, PackageCheck, Printe
 
 export const Route = createFileRoute("/")({ component: Home });
 
+const PRODUCTS = [
+ {name:"Mini caixinhas",color:"#c66755",icon:"🎁"},
+ {name:"Mimos para escola",color:"#88a69a",icon:"🎓"},
+ {name:"Lembranças para clientes",color:"#d5aa74",icon:"🛍️"},
+ {name:"Mini sacolinhas",color:"#8fadb1",icon:"🎀"}
+];
 const occasions = [
   { icon: "🎓", title: "Escolas e professores", text: "Para alunos, colegas e equipes escolares." },
   { icon: "🛍️", title: "Comércios e clientes", text: "Um gesto especial de agradecimento." },
