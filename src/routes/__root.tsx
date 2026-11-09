@@ -109,6 +109,11 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="pt-BR">
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.pixelId="lt_px_475a197ecea2";var a=document.createElement("script");a.setAttribute("async","");a.setAttribute("defer","");a.setAttribute("src","https://lowtrack.com.br/pixel.js");document.head.appendChild(a);`,
+          }}
+        />
       </head>
       <body>
         {children}
