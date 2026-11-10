@@ -1,7 +1,7 @@
 # Auditoria de imagens
 
 ## Resultado
-- 28 imagens únicas exibidas: 57.268.754 bytes antes; 8.997.902 bytes somando a maior versão otimizada de cada imagem (redução de 84,3%).
+- 29 imagens únicas exibidas: 57.268.754 bytes antes; 8.997.902 bytes somando a maior versão otimizada de cada imagem (redução de 84,3%).
 - Somando a menor versão de cada imagem: 1.917.558 bytes. O navegador escolhe uma versão por imagem, não todas as 75 variantes.
 - Imagem principal: 2.721.230 bytes antes; 57.544 bytes a 400px, 177.798 bytes a 800px, 364.904 bytes a 1280px.
 - Em celular 384×727, conexão simulada de 4G: somente a imagem principal foi baixada na abertura, 57.544 bytes com DPR 1 e 177.798 bytes com DPR 2, sem versões duplicadas. Valores medidos pelos corpos das respostas; imagens descobertas pelo HTML não aparecem sempre como initiatorType img no navegador.

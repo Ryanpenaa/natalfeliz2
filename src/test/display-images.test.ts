@@ -3,8 +3,8 @@ import { displayImages } from '@/lib/display-images';
 import dimensions from '@/lib/display-image-dimensions.json';
 
 describe('Display-only image variants', () => {
-  it('provides CDN copies for all 28 original display images without losing any image', () => {
-    expect(Object.keys(dimensions)).toHaveLength(28);
+  it('provides CDN copies for all 29 original display images without losing any image', () => {
+    expect(Object.keys(dimensions)).toHaveLength(29);
     expect(Object.keys(displayImages).sort()).toEqual(Object.keys(dimensions).sort());
     for (const variants of Object.values(displayImages)) {
       expect(variants.length).toBeGreaterThan(0);
