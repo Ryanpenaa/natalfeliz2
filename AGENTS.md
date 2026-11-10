@@ -28,3 +28,7 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Display image performance
+- Serve responsive display-only copies through the CDN manifest and DisplayImage; retain original public/print assets unchanged to protect printable quality and existing download URLs.
+- Defer carousel image URLs until the strip approaches the viewport, then load visible and adjacent slides while keeping the original scrolling and geometry.
