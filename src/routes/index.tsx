@@ -1,12 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { ArrowRight, Check, Gift, Heart, LockKeyhole, PackageCheck, Printer, Scissors, Sparkles, Star } from "lucide-react";
 
 import { DisplayImage } from "@/components/display-image";
+import { displayImages } from "@/lib/display-images";
 
 export const Route = createFileRoute("/")({
  component: Home,
- head: () => ({ meta: [
+ head: () => ({ links: [{
+  rel: "preload", as: "image",
+  imageSrcSet: displayImages["/images/modelos/mk.webp"]?.map(image => `${image.url} ${image.width}w`).join(", "),
+  imageSizes: "(min-width: 672px) 640px, calc(100vw - 32px)",
+  fetchPriority: "high",
+ }], meta: [
   { title: "Mini Lembranças de Natal | 50 Moldes para Imprimir" },
   { name: "description", content: "50 moldes de mini lembranças natalinas para imprimir, montar, presentear ou vender." },
   { property: "og:title", content: "Mini Lembranças de Natal | 50 Moldes para Imprimir" },
@@ -37,7 +43,7 @@ const carouselImages = {
  m: [1,2,3,4,5,6,7,8,9].map(i=>`/images/modelos/m${i}.webp`),
 };
 
-function CarouselStrip({prefix,direction,label}:{prefix:"c"|"m";direction:"forward"|"backward";label:string}) {
+const CarouselStrip = memo(function CarouselStrip({prefix,direction,label}:{prefix:"c"|"m";direction:"forward"|"backward";label:string}) {
  const images=carouselImages[prefix];
  const viewport=useRef<HTMLDivElement>(null);
  const position=useRef(images.length);
@@ -67,6 +73,8 @@ function CarouselStrip({prefix,direction,label}:{prefix:"c"|"m";direction:"forwa
    scrollToItem(count,"auto");
   });
   const interval=window.setInterval(()=>{
+   const bounds=node.getBoundingClientRect();
+   if(document.hidden || bounds.bottom<=0 || bounds.top>=window.innerHeight)return;
    const next=position.current+(direction==="forward"?1:-1);
    position.current=next;
    scrollToItem(next,"smooth");
@@ -85,7 +93,7 @@ function CarouselStrip({prefix,direction,label}:{prefix:"c"|"m";direction:"forwa
    </div>)}
   </div>
  </div>;
-}
+});
 function Home() {
  const [now,setNow]=useState<Date | null>(null);
  const [countdown,setCountdown]=useState(900);

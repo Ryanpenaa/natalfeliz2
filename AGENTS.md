@@ -32,3 +32,4 @@ use the editor.
 ## Display image performance
 - Serve responsive display-only copies through the CDN manifest and DisplayImage; retain original public/print assets unchanged to protect printable quality and existing download URLs.
 - Defer carousel image URLs until the strip approaches the viewport, then load visible and adjacent slides while keeping the original scrolling and geometry.
+- Memoize display images and carousel strips, preload the principal image with matching responsive sizes, and skip offscreen carousel ticks to reduce opening work without changing visible behavior.

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ImgHTMLAttributes, type RefObject } from 'react';
+import { memo, useEffect, useRef, useState, type ImgHTMLAttributes, type RefObject } from 'react';
 import { displayImages } from '@/lib/display-images';
 import originalDimensions from '@/lib/display-image-dimensions.json';
 
@@ -10,7 +10,7 @@ type Props = ImgHTMLAttributes<HTMLImageElement> & {
 };
 
 // Keep the original aspect ratio before downloading, and attach URLs only near view.
-export function DisplayImage({ src, deferred = false, enabled = true, scrollRoot, sizes, ...props }: Props) {
+export const DisplayImage = memo(function DisplayImage({ src, deferred = false, enabled = true, scrollRoot, sizes, ...props }: Props) {
   const ref = useRef<HTMLImageElement>(null);
   const [ready, setReady] = useState(!deferred);
   const variants = displayImages[src.split('?')[0] ?? src];
@@ -31,4 +31,4 @@ export function DisplayImage({ src, deferred = false, enabled = true, scrollRoot
     src={ready ? fallback?.url ?? src : undefined}
     srcSet={ready ? variants?.map(variant => `${variant.url} ${variant.width}w`).join(', ') : undefined}
     sizes={sizes} decoding={props.fetchPriority === 'high' ? 'auto' : 'async'} />;
-}
+});
