@@ -88,14 +88,10 @@ const CarouselStrip = memo(function CarouselStrip({prefix,direction,label}:{pref
   </div>
  </div>;
 });
-function Home() {
+// Keep the once-per-second clock from rendering the entire sales page again.
+function OfferBar() {
  const [now,setNow]=useState<Date | null>(null);
  const [countdown,setCountdown]=useState(900);
- const [showUpgrade,setShowUpgrade]=useState(false);
- const [reviewText,setReviewText]=useState("");
- const [reviewName,setReviewName]=useState("");
- const [reviewStars,setReviewStars]=useState(5);
- const [localReview,setLocalReview]=useState<{name:string;text:string;stars:number}|null>(null);
  useEffect(()=>{
   const key="natal-15min-inicio";
   let start=Date.now();
@@ -109,12 +105,22 @@ function Home() {
   const t=window.setInterval(tick,1000);
   return()=>window.clearInterval(t);
  },[]);
+ const date=now?.toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"});
+ return <div className="bg-[#a52e35] text-white"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2.5 text-center text-xs font-semibold sm:text-sm"><span>🔥 Oferta só hoje <span className="hidden sm:inline">· {date ?? "Hoje"}</span></span><span className="opacity-50">|</span><span className="rounded-md bg-white/20 px-2 py-1 font-mono text-sm tabular-nums">{now?formatRemaining(countdown):"15:00"}</span></div></div>;
+}
+function Home() {
+ const [now,setNow]=useState<Date | null>(null);
+ const [showUpgrade,setShowUpgrade]=useState(false);
+ const [reviewText,setReviewText]=useState("");
+ const [reviewName,setReviewName]=useState("");
+ const [reviewStars,setReviewStars]=useState(5);
+ const [localReview,setLocalReview]=useState<{name:string;text:string;stars:number}|null>(null);
+ useEffect(()=>{setNow(new Date());},[]);
  useEffect(()=>{if(!showUpgrade)return;const onKey=(e:KeyboardEvent)=>{if(e.key==="Escape")setShowUpgrade(false)};window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey)},[showUpgrade]);
  function goTo(id:string){document.getElementById(id)?.scrollIntoView({behavior:"smooth",block:"start"});}
  function submitReview(e:React.FormEvent){e.preventDefault();const name=reviewName.trim();const text=reviewText.trim();if(!name || !text)return;setLocalReview({name:name.slice(0,55),text:text.slice(0,500),stars:reviewStars});setReviewText("");setReviewName("");}
- const date=now?.toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"});
  return <main className="min-h-screen bg-[#fcfbf8] text-[#2e382f] selection:bg-[#e6eddf]" style={{fontFamily:'"Inter", ui-sans-serif, system-ui, sans-serif'}}>
-  <div className="bg-[#a52e35] text-white"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2.5 text-center text-xs font-semibold sm:text-sm"><span>🔥 Oferta só hoje <span className="hidden sm:inline">· {date ?? "Hoje"}</span></span><span className="opacity-50">|</span><span className="rounded-md bg-white/20 px-2 py-1 font-mono text-sm tabular-nums">{now?formatRemaining(countdown):"15:00"}</span></div></div>
+  <OfferBar/>
   
   <section id="inicio" className="relative overflow-hidden"><div className="pointer-events-none absolute -right-28 top-0 h-100 w-100 rounded-full bg-[#f0efe4] blur-3xl"/><div className="relative mx-auto flex max-w-4xl flex-col items-center px-4 pb-12 pt-9 text-center sm:px-6 sm:pt-14 md:pb-18"><Tag><Sparkles size={13}/> Coleção especial de Natal</Tag><h1 className="max-w-3xl text-[clamp(2rem,5.8vw,4rem)] font-extrabold leading-[1.1] tracking-[-.045em] text-[#2c4636]">50 Caixinhas de Natal <span className="text-[#b45b4e]">para Imprimir, Montar e Encantar!</span></h1><p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[#626c62] sm:text-lg">Receba <strong className="text-[#2c4636]">50 moldes natalinos ilustrados em A4</strong>, com modelos variados para imprimir, recortar, dobrar e colar. Crie lindas mini lembrancinhas para <strong className="text-[#2c4636]">presentear, agradecer ou até vender</strong>, mesmo sem experiência com artesanato.</p><DisplayImage src="/images/modelos/mockup-natal-hero-aprovado.webp" sizes="(min-width: 768px) 740px, calc(100vw - 32px)" loading="eager" alt="Mockup aprovado: 50 moldes de caixinhas natalinas A4 para imprimir e exemplos das lembrancinhas montadas" fetchPriority="high" width={900} height={927} className="relative my-5 block h-auto w-full max-w-[740px] rounded-2xl object-contain shadow-sm sm:my-7" /><div className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-[#4e5d51] sm:text-sm">{["Formato A4","Fácil de montar","Acesso digital"].map(t=><span key={t} className="inline-flex items-center gap-1.5"><Check size={17} className="text-[#2b7950]"/>{t}</span>)}</div><div className="mt-8 w-full sm:w-auto"><Button onClick={()=>goTo("precos")} className="w-full sm:min-w-[310px]">QUERO MINHAS LEMBRANCINHAS</Button><p className="mt-3 text-xs text-[#7e887d]">Acesso imediato após a confirmação da compra</p></div></div></section>
   <section id="como-funciona" className="scroll-mt-22 border-y border-[#eeece5] bg-white py-20"><div className="mx-auto max-w-6xl px-5 text-center"><Tag>Simples e especial</Tag><h2 className="mx-auto max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-[#2c4636] md:text-4xl">Um mimo simples pode se transformar em uma lembrança inesquecível.</h2><DisplayImage src="/images/modelos/geral.webp" deferred sizes="(min-width: 936px) 896px, calc(100vw - 40px)" alt="Visão geral das mini lembrancinhas natalinas da coleção" loading="lazy" className="mx-auto mt-9 block h-auto w-full max-w-4xl rounded-2xl object-contain" /><h3 className="mt-12 text-xl font-bold text-[#2c4636]">Uma coleção, muitas ocasiões 🎄</h3><div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{occasions.map(x=><div key={x.title} className="flex items-center gap-4 rounded-xl border border-[#eeece5] p-4 text-left"><span className="text-3xl">{x.icon}</span><div><h4 className="font-bold text-[#34493b]">{x.title}</h4><p className="mt-1 text-xs leading-relaxed text-[#747e75]">{x.text}</p></div></div>)}</div></div></section>
