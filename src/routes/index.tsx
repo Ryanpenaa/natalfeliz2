@@ -123,7 +123,46 @@ function Home() {
   <OfferBar/>
   
   <section id="inicio" className="relative overflow-hidden"><div className="pointer-events-none absolute -right-28 top-0 h-100 w-100 rounded-full bg-[#f0efe4] blur-3xl"/><div className="relative mx-auto flex max-w-4xl flex-col items-center px-4 pb-12 pt-9 text-center sm:px-6 sm:pt-14 md:pb-18"><Tag><Sparkles size={13}/> Coleção especial de Natal</Tag><h1 className="max-w-3xl text-[clamp(2rem,5.8vw,4rem)] font-extrabold leading-[1.1] tracking-[-.045em] text-[#2c4636]">50 Caixinhas de Natal <span className="text-[#b45b4e]">para Imprimir, Montar e Encantar!</span></h1><DisplayImage src="/images/modelos/mockup-natal-hero-aprovado.webp" sizes="(min-width: 768px) 740px, calc(100vw - 32px)" loading="eager" alt="Mockup aprovado: 50 moldes de caixinhas natalinas A4 para imprimir e exemplos das lembrancinhas montadas" fetchPriority="high" width={900} height={927} className="relative my-5 block h-auto w-full max-w-[740px] rounded-2xl object-contain shadow-sm sm:my-7" /><p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[#626c62] sm:text-lg">Receba <strong className="text-[#2c4636]">50 moldes natalinos ilustrados em A4</strong>, com modelos variados para imprimir, recortar, dobrar e colar. Crie lindas mini lembrancinhas para <strong className="text-[#2c4636]">presentear, agradecer ou até vender</strong>, mesmo sem experiência com artesanato.</p><div className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-[#4e5d51] sm:text-sm">{["Formato A4","Fácil de montar","Acesso digital"].map(t=><span key={t} className="inline-flex items-center gap-1.5"><Check size={17} className="text-[#2b7950]"/>{t}</span>)}</div><div className="mt-8 w-full sm:w-auto"><Button onClick={()=>goTo("precos")} className="w-full sm:min-w-[310px]">QUERO MINHAS LEMBRANCINHAS</Button><p className="mt-3 text-xs text-[#7e887d]">Acesso imediato após a confirmação da compra</p></div></div></section>
-  <section id="como-funciona" className="scroll-mt-22 border-y border-[#eeece5] bg-white py-20"><div className="mx-auto max-w-6xl px-5 text-center"><Tag>Simples e especial</Tag><h2 className="mx-auto max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-[#2c4636] md:text-4xl">Um mimo simples pode se transformar em uma lembrança inesquecível.</h2><DisplayImage src="/images/modelos/geral.webp" deferred sizes="(min-width: 936px) 896px, calc(100vw - 40px)" alt="Visão geral das mini lembrancinhas natalinas da coleção" loading="lazy" className="mx-auto mt-9 block h-auto w-full max-w-4xl rounded-2xl object-contain" /><h3 className="mt-12 text-xl font-bold text-[#2c4636]">Uma coleção, muitas ocasiões 🎄</h3><div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{occasions.map(x=><div key={x.title} className="flex items-center gap-4 rounded-xl border border-[#eeece5] p-4 text-left"><span className="text-3xl">{x.icon}</span><div><h4 className="font-bold text-[#34493b]">{x.title}</h4><p className="mt-1 text-xs leading-relaxed text-[#747e75]">{x.text}</p></div></div>)}</div></div></section>
+  <section id="como-funciona" className="scroll-mt-22 border-y border-[#eeece5] bg-white py-20">
+    <div className="mx-auto max-w-6xl px-5 text-center">
+      <Tag>Como funciona</Tag>
+      <h2 className="mx-auto max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-[#2c4636] md:text-4xl">
+        Do papel à lembrancinha em poucos passos 🎄
+      </h2>
+      <p className="mx-auto mt-4 max-w-2xl text-[#6f796f]">
+        Você recebe os moldes digitais prontos para imprimir em folha A4. Depois é só escolher o modelo, recortar, dobrar e colar para transformar o papel em uma lembrancinha linda, prática e encantadora.
+      </p>
+      <DisplayImage
+        src="/images/modelos/geral.webp"
+        deferred
+        sizes="(min-width: 936px) 896px, calc(100vw - 40px)"
+        alt="Visão geral dos moldes e lembrancinhas natalinas da coleção"
+        loading="lazy"
+        className="mx-auto mt-9 block h-auto w-full max-w-4xl rounded-2xl object-contain"
+      />
+      <div className="mt-10 grid gap-4 md:grid-cols-3">
+        <article className="rounded-2xl border border-[#e7eadf] bg-[#fcfbf8] p-6 text-left shadow-sm">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#edf3ea] text-[#315940]"><Printer /></div>
+          <h3 className="text-lg font-bold text-[#2c4636]">1. Imprima</h3>
+          <p className="mt-2 text-sm leading-relaxed text-[#737d73]">Receba os arquivos digitais e imprima os moldes em folha A4, no conforto da sua casa ou em uma gráfica rápida.</p>
+        </article>
+        <article className="rounded-2xl border border-[#e7eadf] bg-[#fcfbf8] p-6 text-left shadow-sm">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#edf3ea] text-[#315940]"><Scissors /></div>
+          <h3 className="text-lg font-bold text-[#2c4636]">2. Recorte e monte</h3>
+          <p className="mt-2 text-sm leading-relaxed text-[#737d73]">Siga o contorno do molde, recorte, dobre nas marcações e cole com facilidade. Tudo foi pensado para ser simples de montar.</p>
+        </article>
+        <article className="rounded-2xl border border-[#e7eadf] bg-[#fcfbf8] p-6 text-left shadow-sm">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#edf3ea] text-[#315940]"><Gift /></div>
+          <h3 className="text-lg font-bold text-[#2c4636]">3. Presenteie ou venda</h3>
+          <p className="mt-2 text-sm leading-relaxed text-[#737d73]">Use as caixinhas para presentear alunos, clientes, família, amigos ou até criar lembrancinhas para vender no Natal.</p>
+        </article>
+      </div>
+      <div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-[#dfe8da] bg-[#f6f9f3] px-5 py-5">
+        <p className="text-sm font-medium leading-relaxed text-[#516050]">Sem precisar criar arte do zero. Sem experiência com artesanato. Prático, bonito e pronto para usar.</p>
+      </div>
+      <div className="mt-8"><Button onClick={() => goTo("modelos")}>QUERO VER OS MODELOS</Button></div>
+    </div>
+  </section>
   <section id="modelos" className="scroll-mt-22 overflow-hidden py-20"><div className="mx-auto max-w-6xl px-5 text-center"><Tag>Conheça a coleção</Tag><h2 className="text-3xl font-extrabold tracking-tight text-[#2c4636] md:text-4xl">50 ideias para encantar neste Natal</h2><p className="mx-auto mt-4 max-w-2xl text-[#6f796f]">Veja algumas das mini lembrancinhas e moldes da coleção.</p></div><div className="mx-auto mt-10 max-w-6xl space-y-8"><CarouselStrip prefix="c" direction="forward" label="Mini lembranças de Natal"/><CarouselStrip prefix="m" direction="backward" label="Mais modelos para se inspirar"/></div><div className="mt-10 text-center"><Button onClick={()=>goTo("precos")}>QUERO ACESSAR OS 50 MODELOS</Button></div></section>
   <section id="bonus" className="border-y border-[#eee9df] bg-white py-20"><div className="mx-auto max-w-6xl px-5 text-center"><Tag>Uma surpresa a mais</Tag><h2 className="text-3xl font-extrabold text-[#2c4636] md:text-4xl">Mais ideias para deixar seu Natal completo 🎁</h2><p className="mx-auto mt-4 max-w-xl text-[#6e796e]">O Plano Completo foi pensado para incluir quatro materiais complementares: artesanato natalino, caixinhas para colorir e dois painéis decorativos.</p><div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{[
  {image:"/images/bonus/bonus1_artenasant.webp",title:"Artesanato Natalino",text:"Ideias criativas para montar e decorar.",value:"R$ 19,90"},
