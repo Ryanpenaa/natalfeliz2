@@ -26,6 +26,8 @@
   window.fbq("trackSingle",PIXEL_ID,"ViewContent",{
     content_ids:[PRODUCT_ID],content_type:"product"
   });
+  // Expose diagnostics in browser console; never disable another plan after a click.
+  window.__natalPixelStatus = {pixelId:PIXEL_ID,ready:true,lastCheckout:null};
   // Capture phase also works for React-hydrated links and clicks on nested icons.
   document.addEventListener("click",function(event){
     var node=event.target;
@@ -37,6 +39,7 @@
     if(url.hostname!=="checkout.evangelhokids.cloud")return;
     var code=url.pathname.slice(1);
     if(!Object.prototype.hasOwnProperty.call(plans,code))return;
+    window.__natalPixelStatus.lastCheckout={plan:plans[code],at:new Date().toISOString()};
     window.fbq("trackSingle",PIXEL_ID,"InitiateCheckout",{
       value:plans[code],currency:"BRL",content_type:"product",
       content_ids:[PRODUCT_ID]
@@ -47,7 +50,7 @@
        !event.shiftKey && !event.altKey && !a.hasAttribute("download") &&
        (!a.target || a.target==="_self")){
       event.preventDefault();
-      setTimeout(function(){location.assign(a.href);},200);
+      setTimeout(function(){location.assign(a.href);},650);
     }
   },true);
 })();
