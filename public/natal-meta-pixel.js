@@ -35,7 +35,7 @@
     var url;
     try{url=new URL(a.href,location.href);}catch(e){return;}
     if(url.hostname!=="checkout.evangelhokids.cloud")return;
-    var code=url.pathname.replace(/^\\//,"");
+    var code=url.pathname.slice(1);
     if(!Object.prototype.hasOwnProperty.call(plans,code))return;
     window.fbq("trackSingle",PIXEL_ID,"InitiateCheckout",{
       value:plans[code],currency:"BRL",content_type:"product",
