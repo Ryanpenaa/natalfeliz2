@@ -111,7 +111,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
         <script
           async
-          src="https://painelpessoallow.lovable.app/trackup-site.js?product=d6dbd071-7dc8-4d9e-a236-a57f075831db"
+          src="https://painelpessoallow.lovable.app/trackup-site.js?product=d6dbd071-7dc8-4d9e-a236-a57f075831db&pixel=1894651341979721"
         />
       </head>
       <body>
