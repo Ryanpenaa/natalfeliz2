@@ -109,11 +109,7 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="pt-BR">
       <head>
         <HeadContent />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1894651341979721');fbq('trackSingle','1894651341979721','PageView');fbq('trackSingle','1894651341979721','ViewContent',{content_ids:['d6dbd071-7dc8-4d9e-a236-a57f075831db'],content_type:'product'});`,
-          }}
-        />
+        <script defer src="/natal-meta-pixel.js?v=2" />
         <script
           async
           src="https://painelpessoallow.lovable.app/trackup-site.js?product=d6dbd071-7dc8-4d9e-a236-a57f075831db&pixel_events=off"
