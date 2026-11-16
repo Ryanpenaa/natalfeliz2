@@ -110,9 +110,8 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
         <script
-          dangerouslySetInnerHTML={{
-            __html: `window.pixelId="lt_px_475a197ecea2";var a=document.createElement("script");a.setAttribute("async","");a.setAttribute("defer","");a.setAttribute("src","https://lowtrack.com.br/pixel.js");document.head.appendChild(a);`,
-          }}
+          async
+          src="https://painelpessoallow.lovable.app/trackup-site.js?product=d6dbd071-7dc8-4d9e-a236-a57f075831db"
         />
       </head>
       <body>
