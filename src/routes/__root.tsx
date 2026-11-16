@@ -109,7 +109,7 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="pt-BR">
       <head>
         <HeadContent />
-        <script defer src="/natal-meta-pixel.js?v=2" />
+        <script defer src="/natal-meta-pixel.js?v=3" />
         <script
           async
           src="https://painelpessoallow.lovable.app/trackup-site.js?product=d6dbd071-7dc8-4d9e-a236-a57f075831db&pixel_events=off"
